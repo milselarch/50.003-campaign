@@ -22,6 +22,9 @@ bin/
 /nbdist/
 /.nb-gradle/
 
+## exclude lock files
+.~lock.*
+
 ### VS Code ###
 .vscode/
 ### IntelliJ IDEA ###
