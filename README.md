@@ -26,7 +26,7 @@ Enter second csv file path: sample_file_3.csv
 Enter unique combination (comma separated): "Customer ID#", "Account No.", "Currency", "Type"
 ```
 
-Example output (The mismatched rows / exception causing rows will be exported to the mismatches folder by the program):
+Example shell output (The mismatched rows / exception causing rows will be exported to the mismatches folder by the program):
 ```console
 COMBINATION ["Customer ID#", "Account No.", "Currency", "Type"]
 HEADERS
@@ -36,5 +36,5 @@ HEADERS
 Successfully wrote mismatches to mismatches/mismatches-220711-214731.csv
 ```
 
-Example input to create the example output provided in sample_file_output_comparing_1_and_3.csv
+Example input used to replicate the example output provided in sample_file_output_comparing_1_and_3.csv (typed in user inputs is in green)
 ![Screenshot from 2022-07-11 22-14-34](https://user-images.githubusercontent.com/11241733/178285865-c6649af7-a25f-4182-a24e-33b3bb0f69f0.png)
