@@ -1,6 +1,12 @@
 # 50.003-campaign
-Software testing campaign repo for Lim Thian Yew (1003158)
-Given two input csv file paths, and a unique combination of columns, generates a csv file containing the mismatched rows between the two files
+Software testing campaign repo for Lim Thian Yew (1003158)  
+Built and tested on: 
+```console
+openjdk 16.0.1 2021-04-20  
+OpenJDK Runtime Environment (build 16.0.1+9-Ubuntu-120.04)  
+OpenJDK 64-Bit Server VM (build 16.0.1+9-Ubuntu-120.04, mixed mode, sharing)  
+```
+What this project does: given three inputs (two input csv file paths, and a unique combination of columns), generates a new csv file containing the mismatched rows between the two input files.
 
 ![use case diagram](https://raw.githubusercontent.com/milselarch/50.003-campaign/master/diagrams/use_case_diagram.png?token=GHSAT0AAAAAABWIFSHCOPD4VJEJ6GEP4V4KYWMI2AA)
 
