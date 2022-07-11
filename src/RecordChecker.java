@@ -21,6 +21,7 @@ public final class RecordChecker {
         Enter second csv file path: sample_file_3.csv
         Enter unique combination (comma separated):
         "Customer ID#", "Account No.", "Currency", "Type"
+        "Customer ID#", "Account No.", "Type"
         */
         Scanner scanner = new Scanner(System.in);
 
@@ -93,13 +94,15 @@ public final class RecordChecker {
 
         for (int k=0; k<csv_file1.num_rows(); k++) {
             String[] current_row = csv_file1.get_row(k);
-            String row_balance = csv_file1.get_row_balance(k);
+            String[] compare_values = csv_file1.exclude_row_columns(
+                k, trim_combination
+            );
             String[] column_values = csv_file1.select_row_columns(
                 k, trim_combination
             );
 
             ArrayList<String[]> mismatches = csv_file2.get_mismatch_rows(
-                row_balance, trim_combination, column_values
+                compare_values, trim_combination, column_values
             );
 
             if (mismatches.size() == 0) { continue; }
@@ -122,12 +125,13 @@ public final class RecordChecker {
 
         try {
             FileWriter writer = new FileWriter(export_path);
-            String header_line = String.join(", ", headers);
-            writer.write(header_line);
-            writer.write("\n");
+            // columns are not written in example output
+            // String header_line = String.join(",", headers);
+            // writer.write(header_line);
+            // writer.write("\n");
 
             for (String[] row : all_mismatch_rows) {
-                String line = String.join(", ", row);
+                String line = String.join(",", row);
                 writer.write(line);
                 writer.write("\n");
             }

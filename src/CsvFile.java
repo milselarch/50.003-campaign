@@ -7,7 +7,7 @@ public class CsvFile {
     ArrayList<String[]> raw_data;
     public static final String BALANCE_COLUMN = "\"Balance\"";
 
-    CsvFile(ArrayList<String[]> raw_data) {
+    public CsvFile(ArrayList<String[]> raw_data) {
         assert raw_data.size() >= 1;
         String[] headers = raw_data.get(0);
         List<String> headers_list = Arrays.asList(headers);
@@ -79,19 +79,43 @@ public class CsvFile {
         return column_values;
     }
 
-    public ArrayList<Pair<String[], String>> search_matches(
+    public String[] exclude_row_columns(int index, String[] columns) {
+        // get columns values for columns whose names are NOT the
+        // names of the columns passed in, for the row at index
+        String[] row = this.get_row(index);
+        int[] int_indexes = this.get_column_indexes(columns);
+        Integer[] integer_indexes = Arrays.stream(int_indexes)
+            .boxed().toArray(Integer[]::new);
+
+        List<Integer> indexes = Arrays.asList(integer_indexes);
+        ArrayList<String> excluded_values = new ArrayList<>();
+
+        for (int k=0; k<this.num_columns(); k++) {
+            if (indexes.contains(k)) { continue; }
+            excluded_values.add(row[k]);
+        }
+
+        // dump the arraylist back into an array
+        String[] exclude_arr = new String[excluded_values.size()];
+        for (int k=0; k<excluded_values.size(); k++) {
+            exclude_arr[k] = excluded_values.get(k);
+        }
+        return exclude_arr;
+    }
+
+    public ArrayList<Pair<String[], String[]>> search_matches(
         String[] columns, String[] column_values
     ) {
         assert columns.length == column_values.length;
-        ArrayList<Pair<String[], String>> matches = new ArrayList<>();
+        ArrayList<Pair<String[], String[]>> matches = new ArrayList<>();
 
         for (int k=0; k<this.num_rows(); k++) {
             String[] row_column_values = this.select_row_columns(k, columns);
+            String[] row_exclude_values = this.exclude_row_columns(k, columns);
             String[] row = this.get_row(k);
 
-            String balance = this.get_row_balance(k);
             if (Arrays.equals(column_values, row_column_values)) {
-                matches.add(new Pair<>(row, balance));
+                matches.add(new Pair<>(row, row_exclude_values));
             }
         }
 
@@ -99,18 +123,18 @@ public class CsvFile {
     }
 
     public ArrayList<String[]> get_mismatch_rows(
-        String balance, String[] columns, String[] column_values
+        String[] compare_values, String[] columns, String[] column_values
     ) {
-        ArrayList<Pair<String[], String>> matches = this.search_matches(
+        ArrayList<Pair<String[], String[]>> matches = this.search_matches(
             columns, column_values
         );
 
         ArrayList<String[]> rows = new ArrayList<>();
-        for (Pair<String[], String> match : matches) {
+        for (Pair<String[], String[]> match : matches) {
             String[] row = match.first;
-            String row_balance = match.second;
+            String[] compare_row_values = match.second;
 
-            if (!Objects.equals(row_balance, balance)) {
+            if (!Arrays.equals(compare_values, compare_row_values)) {
                 rows.add(row);
             }
         }
