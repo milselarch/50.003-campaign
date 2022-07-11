@@ -5,13 +5,12 @@ Given two input csv file paths, and a unique combination of columns, generates a
 ![use case diagram](https://raw.githubusercontent.com/milselarch/50.003-campaign/master/diagrams/use_case_diagram.png?token=GHSAT0AAAAAABWIFSHCOPD4VJEJ6GEP4V4KYWMI2AA)
 
 ## Build and test instructions:  
-Run the following in the project root folder
+To run the program, run the following in the project root folder. Alternatively, you can build and run the project using IntelliJ IDEA instead (in fact that is the method I using).
 ```console
 javac -cp ./src src/*.java
 java src/RecordChecker.java
 ```
 
-Alternatively, you can build and run the project using IntelliJ IDEA instead (in fact that is the method I using).
 You will be prompted for the filename of the two csv source files, and the unique combination of columns (comma seperated) that you wish to compare them by:  
 
 ```console
