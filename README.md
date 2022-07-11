@@ -26,7 +26,7 @@ Enter second csv file path: sample_file_3.csv
 Enter unique combination (comma separated): "Customer ID#", "Account No.", "Currency", "Type"
 ```
 
-Example shell output (The mismatched rows / exception causing rows will be exported to the mismatches folder by the program):
+Example shell output (The mismatched rows / exception causing rows will be exported to the mismatches folder by the program):  
 ```console
 COMBINATION ["Customer ID#", "Account No.", "Currency", "Type"]
 HEADERS
