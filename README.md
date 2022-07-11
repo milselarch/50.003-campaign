@@ -8,6 +8,7 @@ javac -cp ./src src/*.java
 java src/RecordChecker.java
 ```
 
+Alternatively, you can build and run the project using IntelliJ IDEA instead (in fact that is the method I using).
 You will be prompted for the filename of the two csv source files, and the unique combination of columns (comma seperated) that you wish to compare them by:  
 
 ```console
