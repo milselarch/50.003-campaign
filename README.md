@@ -1,5 +1,6 @@
 # 50.003-campaign
 Software testing campaign repo for Lim Thian Yew (1003158)
+Given two input csv file paths, and a unique combination of inputs, generates a csv file containing the mismatched rows between the two files
 
 ## Build and test instructions:  
 Run the following in the project root folder
