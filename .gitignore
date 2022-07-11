@@ -25,6 +25,9 @@ bin/
 ## exclude lock files
 .~lock.*
 
+## all generated mismatch files
+mismatches/*
+
 ### VS Code ###
 .vscode/
 ### IntelliJ IDEA ###
