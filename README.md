@@ -8,7 +8,7 @@ OpenJDK 64-Bit Server VM (build 16.0.1+9-Ubuntu-120.04, mixed mode, sharing)
 ```
 What this project does: given three inputs (two input csv file paths, and a unique combination of columns), generates a new csv file containing the mismatched rows between the two input files.
 
-![use case diagram](https://raw.githubusercontent.com/milselarch/50.003-campaign/master/diagrams/use_case_diagram.png?token=GHSAT0AAAAAABWIFSHCOPD4VJEJ6GEP4V4KYWMI2AA)
+![use case diagram](diagrams/use_case_diagram.png)
 
 ## Build and test instructions:  
 To run the program, run the following in the project root folder. Alternatively, you can build and run the project using IntelliJ IDEA instead (in fact that is the method I using).
