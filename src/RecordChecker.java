@@ -72,11 +72,6 @@ public final class RecordChecker {
             throw new BadCombination("DUPLICATE COLUMN NAMES");
         }
 
-        List<String> headers_list = Arrays.asList(trim_combination);
-        if (headers_list.contains(CsvFile.BALANCE_COLUMN)) {
-            throw new BadCombination("BALANCE IS IN COMBINATION");
-        }
-
         CsvFile csv_file1 = read_csv(filename1);
         CsvFile csv_file2 = read_csv(filename2);
         String[] headers1 = csv_file1.get_headers();
@@ -195,8 +190,7 @@ public final class RecordChecker {
             1. columns mismatch within file
             2. file not having any rows
             3. file not having at least 2 rows (including headers)
-            4. file not containing a "Balance" column
-            5. header columns not being unique
+            4. header columns not being unique
         */
         String split_by = ",";
 
@@ -229,7 +223,7 @@ public final class RecordChecker {
         if (headers == null) {
             throw new BadFileFormat("NO HEADERS FOUND");
         } else if (headers.length <= 1) {
-            // We need to have more than the Balance column at the least
+            // We need to have more than one column at the least
             throw new BadFileFormat("INSUFFICIENT COLUMNS");
         }
 
@@ -238,10 +232,7 @@ public final class RecordChecker {
 
         // Convert String Array to List
         List<String> headers_list = Arrays.asList(headers);
-        if (!headers_list.contains(CsvFile.BALANCE_COLUMN)) {
-            // fail parsing if the balance column is missing
-            throw new BadFileFormat("NO BALANCE COLUMN");
-        } else if (!RecordChecker.is_unique_arr(headers)) {
+        if (!RecordChecker.is_unique_arr(headers)) {
             throw new BadFileFormat("DUPLICATE COLUMNS");
         }
 

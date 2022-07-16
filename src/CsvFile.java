@@ -5,20 +5,12 @@ import java.util.Objects;
 
 public class CsvFile {
     ArrayList<String[]> raw_data;
-    public static final String BALANCE_COLUMN = "\"Balance\"";
 
     public CsvFile(ArrayList<String[]> raw_data) {
         assert raw_data.size() >= 1;
-        String[] headers = raw_data.get(0);
-        List<String> headers_list = Arrays.asList(headers);
-
-        // ensure headers contains "Balance" column
-        assert headers_list.contains(BALANCE_COLUMN);
+        // String[] headers = raw_data.get(0);
+        // List<String> headers_list = Arrays.asList(headers);
         this.raw_data = raw_data;
-    }
-
-    public int get_balance_column_index() {
-        return this.get_column_index(BALANCE_COLUMN);
     }
 
     public int get_column_index(String column_name) {
@@ -152,26 +144,6 @@ public class CsvFile {
             System.out.print(" ");
             System.out.println(Arrays.toString(column));
         }
-    }
-
-    public String get_row_balance(int index) {
-        String[] row = this.get_row(index);
-        int balance_index = this.get_balance_column_index();
-        return row[balance_index];
-    }
-
-    public String[] non_balance_row(int index) {
-        // return row at index with the Balance column removed
-        ArrayList<String> filtered_row_data = new ArrayList<String>();
-        int balance_column_index = this.get_balance_column_index();
-        String[] row = this.get_row(index);
-
-        for (int k=0; k<row.length; k++) {
-            if (k == balance_column_index) { continue; }
-            filtered_row_data.add(row[k]);
-        }
-
-        return filtered_row_data.toArray(new String[0]);
     }
 
     public String[] get_headers() {

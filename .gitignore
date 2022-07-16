@@ -29,7 +29,7 @@ bin/
 .~lock.*
 
 ## all generated mismatch files
-mismatches/*
+mismatches/*.csv
 
 ### VS Code ###
 .vscode/
