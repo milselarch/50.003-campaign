@@ -116,7 +116,16 @@ public final class RecordChecker {
         String pattern = "yyMMdd-HHmmss";
         Date date_now = new java.util.Date();
         String stamp = new SimpleDateFormat(pattern).format(date_now);
-        String export_path = "mismatches/mismatches-" + stamp + ".csv";
+        String dirname = "mismatches";
+
+        File directory = new File(dirname);
+        if (!directory.exists()) {
+            System.out.println("created directory " + dirname);
+            directory.mkdir();
+        }
+
+        String filename = "mismatches-" + stamp + ".csv";
+        String export_path = dirname + "/" + filename;
 
         try {
             FileWriter writer = new FileWriter(export_path);
