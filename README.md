@@ -1,5 +1,7 @@
 # 50.003-campaign
 Software testing campaign repo for Lim Thian Yew (1003158)  
+The boundary value + equivilance class stuff is at [boundary value and equivilance class analysis.pdf](boundary%20value%20and%20equivilance%20class%20analysis.pdf) 
+
 Built and tested on: 
 ```console
 openjdk 16.0.1 2021-04-20  
