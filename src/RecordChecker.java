@@ -3,6 +3,10 @@ import java.util.*;
 import java.io.*;
 
 public final class RecordChecker {
+    static final String DUP_COL_ERR = "DUPLICATE COLUMN NAMES";
+    static final String COL_MISMATCH = "COLUMN HEADERS MISMATCH";
+    static final String COMB_NOT_FOUND = "COMBINATION NOT FOUND IN CSV";
+
     private RecordChecker() {}
 
     public static void main(String[] args) {
@@ -35,17 +39,25 @@ public final class RecordChecker {
         String combi_input = scanner.nextLine();
 
         try {
-            RecordChecker.generate_diffs(filename1, filename2, combi_input);
+            String export_path = RecordChecker.generate_diffs(
+                filename1, filename2, combi_input
+            );
+            System.out.print("Successfully wrote mismatches to ");
+            System.out.println(export_path);
         } catch (Exception e) {
             System.out.println("ERROR ENCOUNTERED");
             e.printStackTrace();
         }
     }
 
-    public static void generate_diffs(
+    public static String generate_diffs(
         String filename1, String filename2, String raw_combination
-    ) throws BadCombination, BadFileFormat, IOException, FilesMismatch {
+    ) throws BadCombination, BadFileFormat,
+        IOException, FilesMismatch
+    {
         /*
+        returns fil
+
         Things checked for:
             1. everything handled by read_csv
             2. * if the columns differ between files
@@ -69,7 +81,7 @@ public final class RecordChecker {
         System.out.print("COMBINATION ");
         System.out.println(Arrays.toString(trim_combination));
         if (!RecordChecker.is_unique_arr(trim_combination)) {
-            throw new BadCombination("DUPLICATE COLUMN NAMES");
+            throw new BadCombination(DUP_COL_ERR);
         }
 
         CsvFile csv_file1 = read_csv(filename1);
@@ -77,12 +89,14 @@ public final class RecordChecker {
         String[] headers1 = csv_file1.get_headers();
         String[] headers2 = csv_file2.get_headers();
 
+        System.out.println("EDGE HEADERS");
+        System.out.println(Arrays.toString(headers1));
+        System.out.println(Arrays.toString(headers2));
+
         if (!Arrays.equals(headers1, headers2)) {
-            throw new FilesMismatch("COLUMN HEADERS MISMATCH");
+            throw new FilesMismatch(COL_MISMATCH);
         } else if (!csv_file1.has_columns(trim_combination)) {
-            throw new BadCombination(
-                "COMBINATION NOT FOUND IN CSV"
-            );
+            throw new BadCombination(COMB_NOT_FOUND);
         }
 
         ArrayList<String[]> all_mismatch_rows = new ArrayList<>();
@@ -105,14 +119,14 @@ public final class RecordChecker {
             all_mismatch_rows.addAll(mismatches);
         }
 
-        RecordChecker.export_mismatches(
+        return RecordChecker.export_mismatches(
             all_mismatch_rows, headers1
         );
     }
 
-    public static void export_mismatches(
+    public static String export_mismatches(
         ArrayList<String[]> all_mismatch_rows, String[] headers
-    ) {
+    ) throws IOException {
         String pattern = "yyMMdd-HHmmss";
         Date date_now = new java.util.Date();
         String stamp = new SimpleDateFormat(pattern).format(date_now);
@@ -121,7 +135,12 @@ public final class RecordChecker {
         File directory = new File(dirname);
         if (!directory.exists()) {
             System.out.println("created directory " + dirname);
-            directory.mkdir();
+            boolean dir_created = directory.mkdir();
+            if (!dir_created) {
+                throw new IOException(
+                    "FAILED TO MAKE OUTPUT DIRECTORY"
+                );
+            }
         }
 
         String filename = "mismatches-" + stamp + ".csv";
@@ -141,12 +160,13 @@ public final class RecordChecker {
             }
 
             writer.close();
-            System.out.print("Successfully wrote mismatches to ");
-            System.out.println(export_path);
+
         } catch (IOException e) {
             System.out.println("File write error occurred.");
             e.printStackTrace();
         }
+
+        return export_path;
     }
 
     public static boolean is_unique_arr(String[] arr) {
@@ -224,7 +244,7 @@ public final class RecordChecker {
             String[] columns = line.split(split_by);
             if (columns.length != headers.length) {
                 // this row has more columns than were in the headers row
-                throw new BadFileFormat("COLUMNS MISMATCH");
+                throw new BadFileFormat(COL_MISMATCH);
             }
             csv_data.add(columns);
         }
@@ -242,7 +262,7 @@ public final class RecordChecker {
         // Convert String Array to List
         List<String> headers_list = Arrays.asList(headers);
         if (!RecordChecker.is_unique_arr(headers)) {
-            throw new BadFileFormat("DUPLICATE COLUMNS");
+            throw new BadFileFormat(DUP_COL_ERR);
         }
 
         return new CsvFile(csv_data);

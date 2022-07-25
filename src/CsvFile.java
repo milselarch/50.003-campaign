@@ -1,3 +1,5 @@
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,6 +13,21 @@ public class CsvFile {
         // String[] headers = raw_data.get(0);
         // List<String> headers_list = Arrays.asList(headers);
         this.raw_data = raw_data;
+    }
+
+    public void export_csv(String export_path) throws IOException {
+        FileWriter writer = new FileWriter(export_path);
+        for (int k=0; k<this.raw_data.size(); k++) {
+            String[] row = this.raw_data.get(k);
+            String line = String.join(",", row);
+
+            writer.write(line);
+            if (k < this.raw_data.size() - 1) {
+                writer.write('\n');
+            }
+        }
+
+        writer.close();
     }
 
     public int get_column_index(String column_name) {
@@ -147,7 +164,7 @@ public class CsvFile {
     }
 
     public String[] get_headers() {
-        return this.raw_data.get(0);
+        return this.raw_data.get(0).clone();
     }
 
     public int num_rows() {
@@ -161,6 +178,6 @@ public class CsvFile {
 
     public String[] get_row(int index) {
         assert index >= 0;
-        return this.raw_data.get(index + 1);
+        return this.raw_data.get(index + 1).clone();
     }
 }
