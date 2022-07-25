@@ -2,16 +2,15 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
-public class UnitTest {
+public class RecordCheckerTests {
     @Test
     public void test_non_unique_combination() {
         /*
+        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is not actually unique
         */
@@ -47,6 +46,7 @@ public class UnitTest {
         throws BadFileFormat, IOException
     {
         /*
+        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is unique, and the number
         of columns in the unique combination actually matches the
@@ -90,6 +90,7 @@ public class UnitTest {
         throws BadFileFormat, IOException
     {
         /*
+        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is unique, and the number
         of columns in the unique combination actually matches the
@@ -143,6 +144,7 @@ public class UnitTest {
     @Test
     public void files_mismatch() throws IOException {
         /*
+        test for: RecordChecker.generate_diffs
         check that the test fails with a BadFileFormat Exception
         if the unique combination entered matches one of the files,
         (we try setting unique_combination on each of the two files' columns),
@@ -211,11 +213,12 @@ public class UnitTest {
     @Test
     public void files_column_length_mismatch() throws IOException {
         /*
+        test for: RecordChecker.generate_diffs
         check that the test fails with a BadFileFormat Exception
         if the unique combination entered matches one of the files,
         (we try setting unique_combination on each of the two files' columns),
-        and most of the columns are the same in both files
-        but the number of columns in both files is different
+        and all the columns that appear in one file appear in the other file,
+        but one file has more columns than the other
         */
 
         String filename1 = "test_file_1.csv";
@@ -227,8 +230,8 @@ public class UnitTest {
             num_columns, 5
         );
         ArrayList<String[]> file_data_2 = new ArrayList<>();
-        ArrayList<String> fake_columns_2 = RandomString.generate_multi_exc(
-            num_columns, 5, fake_columns_1
+        ArrayList<String> fake_columns_2 = new ArrayList<>(
+            fake_columns_1.subList(1, fake_columns_1.size())
         );
 
         assertNotEquals(fake_columns_1, fake_columns_2);
