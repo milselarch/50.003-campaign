@@ -6,11 +6,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class RecordCheckerTests {
+public class SystemTests {
+    /*
+    system tests on RecordChecker.generate_diffs
+    (the entry function to the program to take in filenames,
+    unique combination, and produce the csv file containing mismatches)
+    */
     @Test
     public void test_non_unique_combination() {
         /*
-        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is not actually unique
         */
@@ -46,7 +50,6 @@ public class RecordCheckerTests {
         throws BadFileFormat, IOException
     {
         /*
-        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is unique, and the number
         of columns in the unique combination actually matches the
@@ -90,7 +93,6 @@ public class RecordCheckerTests {
         throws BadFileFormat, IOException
     {
         /*
-        test for: RecordChecker.generate_diffs
         check that the test fails with a BadCombination Exception
         if the unique combination entered is unique, and the number
         of columns in the unique combination actually matches the
@@ -144,7 +146,6 @@ public class RecordCheckerTests {
     @Test
     public void files_mismatch() throws IOException {
         /*
-        test for: RecordChecker.generate_diffs
         check that the test fails with a BadFileFormat Exception
         if the unique combination entered matches one of the files,
         (we try setting unique_combination on each of the two files' columns),
@@ -261,7 +262,7 @@ public class RecordCheckerTests {
 
             try {
                 RecordChecker.generate_diffs(
-                        filename1, filename2, unique_combination
+                    filename1, filename2, unique_combination
                 );
             } catch (Exception e) {
                 // System.out.println(e);

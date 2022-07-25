@@ -56,7 +56,11 @@ public final class RecordChecker {
         IOException, FilesMismatch
     {
         /*
-        returns fil
+        this is the main entry function to the program.
+        we take in two file names (or file paths), a comma-delimited
+        unique combination of columns and it will output a
+        csv file containing all the mismatching rows, while returning
+        the file path of the exported mismatches csv file
 
         Things checked for:
             1. everything handled by read_csv
@@ -71,6 +75,19 @@ public final class RecordChecker {
             should values without quotes be treated like they're equal?
             i.e. "12.32" == 12.32?
         */
+        String[] combination = parse_combination(raw_combination);
+        CsvFile csv_file1 = read_csv(filename1);
+        CsvFile csv_file2 = read_csv(filename2);
+        ArrayList<String[]> all_mismatch_rows = get_mismatch_rows(
+            csv_file1, csv_file2, combination
+        );
+
+        return RecordChecker.export_mismatches(all_mismatch_rows);
+    }
+
+    public static String[] parse_combination(
+        String raw_combination
+    ) throws BadCombination {
         String[] combination = raw_combination.split(",");
         // remove whitespace around each combination's values
         String[] trim_combination = new String[combination.length];
@@ -84,34 +101,49 @@ public final class RecordChecker {
             throw new BadCombination(DUP_COL_ERR);
         }
 
-        CsvFile csv_file1 = read_csv(filename1);
-        CsvFile csv_file2 = read_csv(filename2);
+        return trim_combination;
+    }
+
+    public static ArrayList<String[]> get_mismatch_rows(
+        CsvFile csv_file1, CsvFile csv_file2, String[] combination
+    ) throws BadCombination, FilesMismatch {
         String[] headers1 = csv_file1.get_headers();
-        String[] headers2 = csv_file2.get_headers();
+        String[] headers2 = csv_file1.get_headers();
 
-        System.out.println("EDGE HEADERS");
-        System.out.println(Arrays.toString(headers1));
-        System.out.println(Arrays.toString(headers2));
-
-        if (!Arrays.equals(headers1, headers2)) {
+        if (!is_unique_arr(headers1)) {
+            // header columns for file 1 are not unique
+            throw new FilesMismatch(DUP_COL_ERR);
+        } else if (!is_unique_arr(headers2)) {
+            // header columns for file 2 are not unique
+            throw new FilesMismatch(DUP_COL_ERR);
+        } else if (!Set.of(headers1).equals(Set.of(headers2))) {
+            // set of columns for both files don't match
             throw new FilesMismatch(COL_MISMATCH);
-        } else if (!csv_file1.has_columns(trim_combination)) {
-            throw new BadCombination(COMB_NOT_FOUND);
         }
 
+        csv_file2.reorder_columns_inplace(headers1);
+        String[] ordered_headers2 = csv_file2.get_headers();
         ArrayList<String[]> all_mismatch_rows = new ArrayList<>();
+
+        if (!Arrays.equals(headers1, ordered_headers2)) {
+            // header columns between the two files are not unique
+            throw new FilesMismatch(COL_MISMATCH);
+        } else if (!csv_file1.has_columns(combination)) {
+            // unique combination columns aren't found in file
+            throw new BadCombination(COMB_NOT_FOUND);
+        }
 
         for (int k=0; k<csv_file1.num_rows(); k++) {
             String[] current_row = csv_file1.get_row(k);
             String[] compare_values = csv_file1.exclude_row_columns(
-                k, trim_combination
+                k, combination
             );
             String[] column_values = csv_file1.select_row_columns(
-                k, trim_combination
+                k, combination
             );
 
             ArrayList<String[]> mismatches = csv_file2.get_mismatch_rows(
-                compare_values, trim_combination, column_values
+                compare_values, combination, column_values
             );
 
             if (mismatches.size() == 0) { continue; }
@@ -119,13 +151,11 @@ public final class RecordChecker {
             all_mismatch_rows.addAll(mismatches);
         }
 
-        return RecordChecker.export_mismatches(
-            all_mismatch_rows, headers1
-        );
+        return all_mismatch_rows;
     }
 
     public static String export_mismatches(
-        ArrayList<String[]> all_mismatch_rows, String[] headers
+        ArrayList<String[]> all_mismatch_rows
     ) throws IOException {
         String pattern = "yyMMdd-HHmmss";
         Date date_now = new java.util.Date();
@@ -192,16 +222,15 @@ public final class RecordChecker {
         parsed csv file
         */
         RecordChecker checker = new RecordChecker();
-        CsvFile csv_data = null;
+        CsvFile csv_data;
 
         try {
-            csv_data = checker.read_csv(filename);
+            csv_data = read_csv(filename);
         } catch (Exception e) {
             e.printStackTrace();
             return;
         }
 
-        assert csv_data != null;
         csv_data.print_file();
     }
 
@@ -230,11 +259,12 @@ public final class RecordChecker {
         String[] headers = null;
 
         while (true) {
-            String line = br.readLine();
-            if (line == null) {
+            String raw_line = br.readLine();
+            if (raw_line == null) {
                 break;
             }
 
+            String line = raw_line.trim();
             if (csv_data.size() == 0) {
                 headers = line.split(split_by);
                 csv_data.add(headers);

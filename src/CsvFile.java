@@ -1,17 +1,55 @@
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class CsvFile {
+    /*
+    wrapper class to hold the csv data with convenient utilities
+    for accessing the csv file data. Note that I do not claim to offer
+    nor intend to offer comprehensive error checks on the data here
+    because I plan to do so in the RecordChecker methods that parse
+    the raw csv data before dumping them into a CsvFile instance
+    */
     ArrayList<String[]> raw_data;
 
     public CsvFile(ArrayList<String[]> raw_data) {
         assert raw_data.size() >= 1;
         // String[] headers = raw_data.get(0);
         // List<String> headers_list = Arrays.asList(headers);
+        this.raw_data = raw_data;
+        assert(RecordChecker.is_unique_arr(
+            this.get_headers()
+        ));
+    }
+
+    public CsvFile reorder_columns(String[] new_columns) {
+        CsvFile new_file = new CsvFile(this.raw_data);
+        new_file.reorder_columns_inplace(new_columns);
+        return new_file;
+    }
+
+    public void reorder_columns_inplace(String[] new_columns) {
+        String[] column_names = this.get_headers();
+        assert(RecordChecker.is_unique_arr(new_columns));
+        assert(RecordChecker.is_unique_arr(column_names));
+        assert(column_names.length == new_columns.length);
+        assert(Set.of(new_columns).equals(Set.of(column_names)));
+
+        int[] column_indexes = get_column_indexes(new_columns);
+        ArrayList<String[]> raw_data = new ArrayList<>();
+        raw_data.add(column_names);
+
+        for (int k=0; k<this.num_rows(); k++) {
+            String[] row = this.get_row(k);
+            String[] reordered_row = new String[row.length];
+
+            for (int i=0; i<row.length; i++) {
+                reordered_row[i] = row[column_indexes[i]];
+            }
+
+            raw_data.add(reordered_row);
+        }
+
         this.raw_data = raw_data;
     }
 
