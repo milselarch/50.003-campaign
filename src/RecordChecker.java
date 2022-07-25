@@ -6,6 +6,8 @@ public final class RecordChecker {
     static final String DUP_COL_ERR = "DUPLICATE COLUMN NAMES";
     static final String COL_MISMATCH = "COLUMN HEADERS MISMATCH";
     static final String COMB_NOT_FOUND = "COMBINATION NOT FOUND IN CSV";
+    static final String EMPTY_COMB = "EMPTY COMBINATION";
+    static final String BLANK_COLUMN = "COLUMN IS BLANK";
 
     private RecordChecker() {}
 
@@ -88,11 +90,18 @@ public final class RecordChecker {
     public static String[] parse_combination(
         String raw_combination
     ) throws BadCombination {
-        String[] combination = raw_combination.split(",");
+        String[] combination = raw_combination.trim().split(",");
+        if (combination.length == 0) {
+            throw new BadCombination(EMPTY_COMB);
+        }
+
         // remove whitespace around each combination's values
         String[] trim_combination = new String[combination.length];
         for (int k=0; k<combination.length; k++) {
             trim_combination[k] = combination[k].trim();
+            if (trim_combination[k].length() == 0) {
+                throw new BadCombination(BLANK_COLUMN);
+            }
         }
 
         System.out.print("COMBINATION ");
@@ -108,7 +117,7 @@ public final class RecordChecker {
         CsvFile csv_file1, CsvFile csv_file2, String[] combination
     ) throws BadCombination, FilesMismatch {
         String[] headers1 = csv_file1.get_headers();
-        String[] headers2 = csv_file1.get_headers();
+        String[] headers2 = csv_file2.get_headers();
 
         if (!is_unique_arr(headers1)) {
             // header columns for file 1 are not unique
@@ -194,6 +203,7 @@ public final class RecordChecker {
         } catch (IOException e) {
             System.out.println("File write error occurred.");
             e.printStackTrace();
+            throw new IOException("FILE WRITE FAILED");
         }
 
         return export_path;
@@ -237,6 +247,12 @@ public final class RecordChecker {
     public static CsvFile read_csv(
         String filename
     ) throws IOException, BadFileFormat {
+        return read_csv(filename, null);
+    }
+
+    public static CsvFile read_csv(
+        String filename, String[] inject_headers
+    ) throws IOException, BadFileFormat {
         /*
         Given a filename (or file path), this method returns
         an ArrayList of String Arrays, where each string array
@@ -256,7 +272,12 @@ public final class RecordChecker {
         FileReader file_obj = new FileReader(filename);
         BufferedReader br = new BufferedReader(file_obj);
         ArrayList<String[]> csv_data = new ArrayList<>();
+
         String[] headers = null;
+        if (inject_headers != null) {
+            headers = inject_headers.clone();
+            csv_data.add(headers);
+        }
 
         while (true) {
             String raw_line = br.readLine();
@@ -266,6 +287,7 @@ public final class RecordChecker {
 
             String line = raw_line.trim();
             if (csv_data.size() == 0) {
+                assert(headers == null);
                 headers = line.split(split_by);
                 csv_data.add(headers);
                 continue;
