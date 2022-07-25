@@ -1,5 +1,6 @@
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class CsvFile {
@@ -28,7 +29,30 @@ public class CsvFile {
         return new_file;
     }
 
+    @Override
+    public CsvFile clone() {
+        ArrayList<String[]> new_rows = new ArrayList<>();
+        for (String[] raw_datum : this.raw_data) {
+            new_rows.add(raw_datum.clone());
+        }
+
+        return new CsvFile(new_rows);
+    }
+
+    public ArrayList<String[]> copy_rows() {
+        ArrayList<String[]> new_rows = new ArrayList<>();
+        for (int k=0; k<this.num_rows(); k++) {
+            new_rows.add(this.get_row(k).clone());
+        }
+        return new_rows;
+    }
+
     public void reorder_columns_inplace(String[] new_columns) {
+        /*
+        Given an array of columns in a certain order,
+        reorder our entire csv file to the specified column ordering
+        (both header columns and row data columns are reordered)
+        */
         String[] column_names = this.get_headers();
         assert(RecordChecker.is_unique_arr(new_columns));
         assert(RecordChecker.is_unique_arr(column_names));
@@ -37,8 +61,13 @@ public class CsvFile {
 
         int[] column_indexes = get_column_indexes(new_columns);
         ArrayList<String[]> raw_data = new ArrayList<>();
-        raw_data.add(column_names);
+        String[] reorder_column_names = new String[column_names.length];
+        for (int k=0; k<column_names.length; k++) {
+            reorder_column_names[k] = column_names[column_indexes[k]];
+        }
 
+        // add reordered columns to new raw data
+        raw_data.add(reorder_column_names);
         for (int k=0; k<this.num_rows(); k++) {
             String[] row = this.get_row(k);
             String[] reordered_row = new String[row.length];

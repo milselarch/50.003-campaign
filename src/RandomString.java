@@ -10,7 +10,7 @@ public class RandomString {
     /**
      * Generate a random string.
      */
-    public String nextString() {
+    public String next_string() {
         for (int idx = 0; idx < buf.length; ++idx) {
             buf[idx] = symbols[random.nextInt(symbols.length)];
         }
@@ -23,7 +23,7 @@ public class RandomString {
 
     public static String generate(int length) {
         RandomString generator = new RandomString();
-        return generator.nextString();
+        return generator.next_string();
     }
 
     public static ArrayList<String> generate_multi() {
@@ -40,7 +40,7 @@ public class RandomString {
         ArrayList<String> rand_strings = new ArrayList<>();
         RandomString generator = new RandomString(length);
         for (int k=0; k<num_samples; k++) {
-            rand_strings.add(generator.nextString());
+            rand_strings.add(generator.next_string());
         }
 
         return rand_strings;
@@ -65,7 +65,7 @@ public class RandomString {
         RandomString generator = new RandomString(length);
 
         while (rand_strings.size() < num_samples) {
-            String sample = generator.nextString();
+            String sample = generator.next_string();
             if (exclusions.contains(sample)) { continue; }
             if (rand_strings.contains(sample)) { continue; }
             rand_strings.add(sample);

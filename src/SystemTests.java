@@ -3,10 +3,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class SystemTests {
     /*
@@ -285,28 +282,26 @@ public class SystemTests {
         }
     }
 
-    @Test
-    public void valid_mismatch_test() throws
-        IOException, FilesMismatch, BadFileFormat, BadCombination
-    {
+    public MismatchesInfo generate_mismatches_file(
+        int no_unique_columns, int column_length,
+        String filename1, String filename2
+    ) throws IOException {
+        return generate_mismatches_file(
+            no_unique_columns, column_length, filename1, filename2,
+            false
+        );
+    }
+
+    public MismatchesInfo generate_mismatches_file(
+        int no_unique_columns, int column_length,
+        String filename1, String filename2, boolean shuffle_columns
+    ) throws IOException {
         /*
-        If we have two files with the same header column values
-        (I randomly generated the columns, though column length is
-        constant across all columns)
-        AND the unique combination matches the file header columns
-        AND each file has a row each that have the same values except
-        at a single column at rand_index (randomly selected)
-        AND the unique combination is all the columns except for column i
-        THEN we should expect a mismatch csv file to be produced that
-        contains both of those rows
+        generate two files with one row each and all the
+        columns for both rows are the same except for the column
+        at rand_index. If shuffle_columns is true, we will shuffle
+        the columns in the second csv file.
         */
-
-        String filename1 = "test_file_1.csv";
-        String filename2 = "test_file_2.csv";
-        Random generator = new Random();
-
-        final int column_length = 5 + generator.nextInt(5);
-        final int no_unique_columns = 5 + generator.nextInt(5);
         ArrayList<String> columns = RandomString.generate_multi_exc(
             no_unique_columns, column_length
         );
@@ -340,8 +335,59 @@ public class SystemTests {
 
         CsvFile csv_file_1 = new CsvFile(file_data_1);
         CsvFile csv_file_2 = new CsvFile(file_data_2);
+
+        if (shuffle_columns) {
+            ArrayList<String> reorder_columns = new ArrayList<>(columns);
+            Collections.shuffle(reorder_columns);
+            String[] reorder_columns_arr = new String[
+                reorder_columns.size()
+            ];
+
+            reorder_columns.toArray(reorder_columns_arr);
+            csv_file_2.reorder_columns_inplace(reorder_columns_arr);
+        }
+
         csv_file_1.export_csv(filename1);
         csv_file_2.export_csv(filename2);
+        return new MismatchesInfo(
+            columns, rand_index, row1, row2
+        );
+    }
+
+    @Test
+    public void valid_mismatch_test() throws
+        IOException, FilesMismatch, BadFileFormat, BadCombination
+    {
+        /*
+        If we have two files with the same header column values
+        AND the columns have the same ordering
+        (I randomly generated the columns, though column length is
+        constant across all columns)
+        AND the unique combination matches the file header columns
+        AND each file has a row each that have the same values except
+        at a single column at rand_index (randomly selected)
+        AND the unique combination is all the columns except for column i
+        THEN we should expect a mismatch csv file to be produced that
+        contains both of those rows
+        */
+
+        String filename1 = "test_file_1.csv";
+        String filename2 = "test_file_2.csv";
+        Random generator = new Random();
+
+        final int column_length = 5 + generator.nextInt(5);
+        final int no_unique_columns = 5 + generator.nextInt(5);
+        MismatchesInfo result = generate_mismatches_file(
+            no_unique_columns, column_length, filename1, filename2
+        );
+
+        ArrayList<String> columns = result.columns;
+        int rand_index = result.rand_index;
+        String[] row1 = result.row1;
+        String[] row2 = result.row2;
+
+        String[] columns_arr = new String[no_unique_columns];
+        columns.toArray(columns_arr);
 
         List<String> group_columns = columns.subList(0, columns.size());
         group_columns.remove(rand_index);
@@ -352,7 +398,67 @@ public class SystemTests {
         System.out.print("UNIQUE_COMBO: ");
         System.out.println(unique_combination);
         System.out.println(columns);
+        String export_filename = RecordChecker.generate_diffs(
+            filename1, filename2, unique_combination
+        );
 
+        System.out.println("EXPORTED TO");
+        System.out.println(export_filename);
+        CsvFile mismatches = RecordChecker.read_csv(
+            export_filename, columns_arr
+        );
+
+        assertEquals(2, mismatches.num_rows());
+        assertArrayEquals(mismatches.get_headers(), columns_arr);
+        assertArrayEquals(mismatches.get_row(0), row2);
+        assertArrayEquals(mismatches.get_row(1), row1);
+    }
+
+    @Test
+    public void valid_mismatch_test_shuffle() throws
+        IOException, FilesMismatch, BadFileFormat, BadCombination
+    {
+        /*
+        If we have two files with the same header column values
+        BUT the columns are possibly ordered differently
+        (I randomly generated the columns, though column length is
+        constant across all columns)
+        AND the unique combination matches the file header columns
+        AND each file has a row each that have the same values except
+        at a single column at rand_index (randomly selected)
+        AND the unique combination is all the columns except for column i
+        THEN we should expect a mismatch csv file to be produced that
+        contains both of those rows
+        */
+
+        String filename1 = "test_file_1.csv";
+        String filename2 = "test_file_2.csv";
+        Random generator = new Random();
+
+        final int column_length = 5 + generator.nextInt(5);
+        final int no_unique_columns = 5 + generator.nextInt(5);
+        MismatchesInfo result = generate_mismatches_file(
+            no_unique_columns, column_length, filename1, filename2,
+            true
+        );
+
+        ArrayList<String> columns = result.columns;
+        int rand_index = result.rand_index;
+        String[] row1 = result.row1;
+        String[] row2 = result.row2;
+
+        String[] columns_arr = new String[no_unique_columns];
+        columns.toArray(columns_arr);
+
+        List<String> group_columns = columns.subList(0, columns.size());
+        group_columns.remove(rand_index);
+        String unique_combination = String.join(
+            ",", group_columns
+        );
+
+        System.out.print("UNIQUE_COMBO: ");
+        System.out.println(unique_combination);
+        System.out.println(columns);
         String export_filename = RecordChecker.generate_diffs(
             filename1, filename2, unique_combination
         );

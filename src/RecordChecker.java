@@ -8,6 +8,8 @@ public final class RecordChecker {
     static final String COMB_NOT_FOUND = "COMBINATION NOT FOUND IN CSV";
     static final String EMPTY_COMB = "EMPTY COMBINATION";
     static final String BLANK_COLUMN = "COLUMN IS BLANK";
+    static final String NO_HEADERS = "NO HEADERS FOUND";
+    static final String INSUFFICIENT_COLUMNS = "INSUFFICIENT COLUMNS";
 
     private RecordChecker() {}
 
@@ -88,13 +90,27 @@ public final class RecordChecker {
     }
 
     public static String[] parse_combination(
-        String raw_combination
+        String raw_combination_input
     ) throws BadCombination {
-        String[] combination = raw_combination.trim().split(",");
-        if (combination.length == 0) {
-            throw new BadCombination(EMPTY_COMB);
+        /*
+        Given a string containing a bunch of unique columns delimited
+        by commas (,), return a string array of the columns.
+        Whitespace around column names are trimmed, and whitespace around
+        the start and end of the string are ignored as well
+        */
+
+        String combination_input = raw_combination_input.trim();
+        if (combination_input.endsWith(",")) {
+            // example input: "column1, column2,"
+            // this was actually caught using the fuzzing unittest
+            throw new BadCombination(BLANK_COLUMN);
+        } else if (combination_input.startsWith(",")) {
+            // example input: ",column1, column2"
+            // this was actually caught using the fuzzing unittest
+            throw new BadCombination(BLANK_COLUMN);
         }
 
+        String[] combination = combination_input.split(",");
         // remove whitespace around each combination's values
         String[] trim_combination = new String[combination.length];
         for (int k=0; k<combination.length; k++) {
@@ -210,8 +226,13 @@ public final class RecordChecker {
     }
 
     public static boolean is_unique_arr(String[] arr) {
-        // return true if all the elements in the
-        // array are unique, return false otherwise
+        /*
+        return true if all the elements in the
+        array are unique, return false otherwise
+        null is considered to not be a unique array,
+        because it's not even an array to begin with
+        */
+        if (arr == null) { return false; }
         String[] copied_arr = new String[arr.length];
         System.arraycopy(arr, 0, copied_arr, 0, arr.length);
         Arrays.sort(copied_arr);
@@ -251,7 +272,7 @@ public final class RecordChecker {
     }
 
     public static CsvFile read_csv(
-        String filename, String[] inject_headers
+        String raw_filename, String[] inject_headers
     ) throws IOException, BadFileFormat {
         /*
         Given a filename (or file path), this method returns
@@ -260,6 +281,9 @@ public final class RecordChecker {
         array is a single column value of the column, row 0 should
         represent a list of headers
 
+        the header columns is set to inject_headers if it's not null,
+        else its set to the first row of the file we're reading
+
         things checked for:
             1. columns mismatch within file
             2. file not having any rows
@@ -267,6 +291,7 @@ public final class RecordChecker {
             4. header columns not being unique
         */
         String split_by = ",";
+        String filename = raw_filename.trim();
 
         //parsing a CSV file into BufferedReader class constructor
         FileReader file_obj = new FileReader(filename);
@@ -302,10 +327,10 @@ public final class RecordChecker {
         }
 
         if (headers == null) {
-            throw new BadFileFormat("NO HEADERS FOUND");
+            throw new BadFileFormat(NO_HEADERS);
         } else if (headers.length <= 1) {
             // We need to have more than one column at the least
-            throw new BadFileFormat("INSUFFICIENT COLUMNS");
+            throw new BadFileFormat(INSUFFICIENT_COLUMNS);
         }
 
         System.out.println("HEADERS");
