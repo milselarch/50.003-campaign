@@ -493,8 +493,8 @@ public class UnitTests {
         assertEquals(csv_file1.num_rows(), 1000);
         assertEquals(csv_file1.num_columns(), 5);
         assertArrayEquals(csv_file1.get_headers(), new String[] {
-            "\"Customer ID#\"", "\"Account No.\"", "\"Currency\"",
-            "\"Type\"", "\"Balance\""
+            "Customer ID#", "Account No.", "Currency",
+            "Type", "Balance"
         });
 
         CsvFile csv_file3 = RecordChecker.read_csv(
@@ -504,8 +504,8 @@ public class UnitTests {
         assertEquals(csv_file3.num_rows(), 1000);
         assertEquals(csv_file3.num_columns(), 5);
         assertArrayEquals(csv_file3.get_headers(), new String[] {
-            "\"Customer ID#\"", "\"Account No.\"", "\"Currency\"",
-            "\"Type\"", "\"Balance\""
+            "Customer ID#", "Account No.", "Currency",
+            "Type", "Balance"
         });
     }
 

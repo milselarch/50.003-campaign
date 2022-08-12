@@ -24,7 +24,7 @@ public class CsvFile {
     }
 
     public CsvFile reorder_columns(String[] new_columns) {
-        CsvFile new_file = new CsvFile(this.raw_data);
+        CsvFile new_file = this.clone();
         new_file.reorder_columns_inplace(new_columns);
         return new_file;
     }
@@ -182,9 +182,38 @@ public class CsvFile {
         return exclude_arr;
     }
 
+    public ArrayList<String[]> search_row_matches(
+        String[] columns, String[] column_values
+    ) {
+        /*
+        return all rows where the columns specified in columns
+        have the column values the same as specified in column_values
+        Each row is represent as a string array of its column values
+        */
+        ArrayList<Pair<String[], String[]>> matches = search_matches(
+            columns, column_values
+        );
+
+        ArrayList<String[]> match_rows = new ArrayList<>();
+        for (Pair<String[], String[]> row_pair: matches) {
+            match_rows.add(row_pair.first);
+        }
+
+        return match_rows;
+    }
+
     public ArrayList<Pair<String[], String[]>> search_matches(
         String[] columns, String[] column_values
     ) {
+        /*
+        return all pairs of <
+            row (all column values),
+            column values for columns that are NOT in columns
+            >
+        for all rows with where the columns specified in columns
+        have the column values the same as specified in column_values
+        Each row is represent as a string array of its column values
+        */
         assert columns.length == column_values.length;
         ArrayList<Pair<String[], String[]>> matches = new ArrayList<>();
 
@@ -204,6 +233,10 @@ public class CsvFile {
     public ArrayList<String[]> get_mismatch_rows(
         String[] compare_values, String[] columns, String[] column_values
     ) {
+        /*
+        return rows in this csv file that have column values in
+        columns that don't have the same values are those in compare_values
+        */
         ArrayList<Pair<String[], String[]>> matches = this.search_matches(
             columns, column_values
         );

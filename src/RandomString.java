@@ -38,6 +38,8 @@ public class RandomString {
     public static ArrayList<String> generate_multi(
         int num_samples, int length
     ) {
+        // System.out.print("NUM_SAMPLES = ");
+        // System.out.println(num_samples);
         return generate_multi(num_samples, length, length);
     }
 
@@ -130,26 +132,66 @@ public class RandomString {
         return rand_strings;
     }
 
-    public static ArrayList<
-    ArrayList<String>> generate_unique_string_arrays(
-        int num_samples, int num_columns
+    public static String[] gen_unique_str_arr(
+        int num_columns, int length
     ) {
-        return generate_unique_string_arrays(
-          num_samples, num_columns, num_columns
+        return gen_unique_str_arr(num_columns, length, length);
+    }
+
+    public static String[] gen_unique_str_arr(
+        int num_columns, int min_length, int max_length
+    ) {
+        return gen_unique_str_arrs(
+            1, num_columns, min_length, max_length
+        ).get(0);
+    }
+
+    public static ArrayList<String[]> gen_unique_str_arrs(
+        int num_samples, int num_columns, int length
+    ) {
+        return gen_unique_str_arrs(
+            num_samples, num_columns, length, length
+        );
+    }
+
+    public static ArrayList<String[]> gen_unique_str_arrs(
+        int num_samples, int num_columns, int min_length, int max_length
+    ) {
+        ArrayList<String[]> arrays = new ArrayList<>();
+        ArrayList<ArrayList<String>
+        > arraylists = gen_unique_string_arraylists(
+            num_samples, num_columns, min_length, max_length
+        );
+
+        for (ArrayList<String> arraylist: arraylists) {
+            String[] string_arr = new String[arraylist.size()];
+            arraylist.toArray(string_arr);
+            arrays.add(string_arr);
+        }
+
+        return arrays;
+    }
+
+    public static ArrayList<
+    ArrayList<String>> gen_unique_string_arraylists(
+        int num_samples, int num_columns, int length
+    ) {
+        return gen_unique_string_arraylists(
+            num_samples, num_columns, length, length
         );
     }
 
     public static ArrayList<
-    ArrayList<String>> generate_unique_string_arrays(
-        int num_samples, int min_columns, int max_columns
+    ArrayList<String>> gen_unique_string_arraylists(
+        int num_samples, int num_columns, int min_length,
+        int max_length
     ) {
-        int span = max_columns - min_columns + 1;
         ArrayList<ArrayList<String>> rows = new ArrayList<>();
-        Random int_generator = new Random();
 
-        for (int k=0; k<num_samples; k++) {
-            int num_columns = min_columns + int_generator.nextInt(span);
-            ArrayList<String> row = generate_multi(num_samples, num_columns);
+        while (rows.size() < num_samples) {
+            ArrayList<String> row = generate_multi(
+                num_columns, min_length, max_length
+            );
             if (arraylist_contains(rows, row)) { continue; }
             rows.add(row);
         }
