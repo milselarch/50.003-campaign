@@ -11,7 +11,7 @@ public class CsvFile {
     because I plan to do so in the RecordChecker methods that parse
     the raw csv data before dumping them into a CsvFile instance
     */
-    ArrayList<String[]> raw_data;
+    private ArrayList<String[]> raw_data;
 
     public CsvFile(ArrayList<String[]> raw_data) {
         assert raw_data.size() >= 1;
@@ -45,6 +45,18 @@ public class CsvFile {
             new_rows.add(this.get_row(k).clone());
         }
         return new_rows;
+    }
+
+    public void scramble_columns_inplace() {
+        // scramble the columns in the headers and in the data
+        // inplace. Only used by junit test methods
+        ArrayList<String> headers = new ArrayList<>(
+            Arrays.asList(this.get_headers())
+        );
+
+        Collections.shuffle(headers);
+        String[] reordered = headers.toArray(new String[0]);
+        this.reorder_columns_inplace(reordered);
     }
 
     public void reorder_columns_inplace(String[] new_columns) {

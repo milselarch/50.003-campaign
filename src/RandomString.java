@@ -64,12 +64,52 @@ public class RandomString {
         return rand_strings;
     }
 
+    public static ArrayList<String[]> gen_multi_row_arrs(
+        int num_samples, int num_columns, int min_length,
+        int max_length
+    ) {
+        ArrayList<String[]> arrays = new ArrayList<>();
+        ArrayList<ArrayList<String>
+        > arraylists = generate_multi_rows(
+            num_samples, num_columns, min_length, max_length
+        );
+
+        for (ArrayList<String> arraylist: arraylists) {
+            arrays.add(arraylist_to_arr(arraylist));
+        }
+
+        return arrays;
+    }
+
+    public static ArrayList<ArrayList<String>> generate_multi_rows(
+        int num_samples, int num_columns, int min_length,
+        int max_length
+    ) {
+        ArrayList<ArrayList<String>> rows = new ArrayList<>();
+        for (int k=0; k<num_samples; k++) {
+            ArrayList<String> row = generate_multi(
+                num_columns, min_length, max_length
+            );
+            rows.add(row);
+        }
+
+        return rows;
+    }
+
     public static ArrayList<String> generate_multi_exc(
         int num_samples, int length
     ) {
         return generate_multi_exc(
             num_samples, length, new ArrayList<>()
         );
+    }
+
+    public static String[] arraylist_to_arr(
+        ArrayList<String> arraylist
+    ) {
+        String[] string_arr = new String[arraylist.size()];
+        arraylist.toArray(string_arr);
+        return string_arr;
     }
 
     public static ArrayList<String> generate_multi_exc(
@@ -103,6 +143,24 @@ public class RandomString {
         return generate_multi_exc(
             num_samples, min_length, max_length, new ArrayList<>()
         );
+    }
+
+    public static String[] gen_multi_exc_arr(
+        int num_samples, int min_length, int max_length
+    ) {
+        return gen_multi_exc_arr(
+            num_samples, min_length, max_length,
+            new ArrayList<String>()
+        );
+    }
+
+    public static String[] gen_multi_exc_arr(
+        int num_samples, int min_length, int max_length,
+        List<String> exclusions
+    ) {
+        return arraylist_to_arr(generate_multi_exc(
+            num_samples, min_length, max_length, exclusions
+        ));
     }
 
     public static ArrayList<String> generate_multi_exc(
@@ -155,6 +213,26 @@ public class RandomString {
     }
 
     public static ArrayList<String[]> gen_unique_str_arrs(
+        int num_samples, int num_columns, int min_length,
+        int max_length, ArrayList<String[]> exclusions
+    ) {
+        ArrayList<String[]> arrays = new ArrayList<>();
+        ArrayList<ArrayList<String>
+        > arraylists = gen_unique_string_arraylists_v2(
+            num_samples, num_columns, min_length, max_length,
+            exclusions
+        );
+
+        for (ArrayList<String> arraylist: arraylists) {
+            String[] string_arr = new String[arraylist.size()];
+            arraylist.toArray(string_arr);
+            arrays.add(string_arr);
+        }
+
+        return arrays;
+    }
+
+    public static ArrayList<String[]> gen_unique_str_arrs(
         int num_samples, int num_columns, int min_length, int max_length
     ) {
         ArrayList<String[]> arrays = new ArrayList<>();
@@ -182,10 +260,46 @@ public class RandomString {
     }
 
     public static ArrayList<
-    ArrayList<String>> gen_unique_string_arraylists(
+        ArrayList<String>> gen_unique_string_arraylists(
         int num_samples, int num_columns, int min_length,
         int max_length
     ) {
+        return gen_unique_string_arraylists(
+            num_samples, num_columns, min_length, max_length,
+            new ArrayList<>()
+        );
+    }
+
+    public static ArrayList<
+    ArrayList<String>> gen_unique_string_arraylists_v2(
+        int num_samples, int num_columns, int min_length,
+        int max_length, ArrayList<String[]> exclusions
+    ) {
+        ArrayList<ArrayList<String>> arraylist_exc = new ArrayList<
+            ArrayList<String>
+        >();
+
+        for (String[] row: exclusions) {
+            List<String> row_list = Arrays.asList(row);
+            ArrayList<String> arraylist = new ArrayList<>(row_list);
+            arraylist_exc.add(arraylist);
+        }
+
+        return gen_unique_string_arraylists(
+            num_samples, num_columns, min_length, max_length,
+            arraylist_exc
+        );
+    }
+
+    public static ArrayList<
+    ArrayList<String>> gen_unique_string_arraylists(
+        int num_samples, int num_columns, int min_length,
+        int max_length, ArrayList<ArrayList<String>> exclusions
+    ) {
+        /*
+        generate random string arraylists where each arraylist
+        is unique relative to all the other arraylists
+        */
         ArrayList<ArrayList<String>> rows = new ArrayList<>();
 
         while (rows.size() < num_samples) {
@@ -193,6 +307,7 @@ public class RandomString {
                 num_columns, min_length, max_length
             );
             if (arraylist_contains(rows, row)) { continue; }
+            if (arraylist_contains(exclusions, row)) { continue; }
             rows.add(row);
         }
 
