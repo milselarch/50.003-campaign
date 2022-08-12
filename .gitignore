@@ -3,6 +3,7 @@ out/
 !**/src/main/**/out/
 !**/src/test/**/out/
 
+*_test_file_*.csv
 test_file_*.csv
 
 ## all javac compiled class files
