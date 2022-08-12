@@ -8,6 +8,8 @@ public final class RecordChecker {
     static final String COMB_NOT_FOUND = "COMBINATION NOT FOUND IN CSV";
     static final String EMPTY_COMB = "EMPTY COMBINATION";
     static final String BLANK_COLUMN = "COLUMN IS BLANK";
+    static final String NULL_COLUMN = "COLUMN IS NULL";
+
     static final String NO_HEADERS = "NO HEADERS FOUND";
     static final String INSUFFICIENT_COLUMNS = "INSUFFICIENT COLUMNS";
 
@@ -98,6 +100,9 @@ public final class RecordChecker {
         Whitespace around column names are trimmed, and whitespace around
         the start and end of the string are ignored as well
         */
+        if (raw_combination_input == null) {
+            throw new BadCombination(NULL_COLUMN);
+        }
 
         String combination_input = raw_combination_input.trim();
         if (combination_input.endsWith(",")) {

@@ -52,6 +52,9 @@ public class CsvFile {
         Given an array of columns in a certain order,
         reorder our entire csv file to the specified column ordering
         (both header columns and row data columns are reordered)
+
+        This is used by unit tests for csv file generation, but
+        is not actually used in the actual program code
         */
         String[] column_names = this.get_headers();
         assert(RecordChecker.is_unique_arr(new_columns));

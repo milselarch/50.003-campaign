@@ -8,6 +8,38 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 public class UnitTests {
+    public String generate_whitespace(int length) {
+        // generate a space made of whitespace characters
+        if (length == 0) { return ""; }
+        Random generator = new Random();
+        RandomString rand_string_builder = new RandomString(
+            length, generator, "\s\t\n\r"
+        );
+
+        return rand_string_builder.next_string();
+    }
+
+    @Test
+    public void null_combination() {
+        /*
+        unittest for: RecordChecker.parse_combination
+        ensure when we parse an null as our unique combination
+        the parser raises a BadCombination Exception
+        */
+        try {
+            RecordChecker.parse_combination(null);
+        } catch (Exception e) {
+            assertTrue(e instanceof BadCombination);
+            String error_message = e.getMessage();
+            // System.out.println("EMPTY COMBO");
+            // System.out.println(error_message);
+            assertEquals(error_message, RecordChecker.NULL_COLUMN);
+            return;
+        }
+
+        fail("EMPTY COMBINATION DIDN'T FAIL");
+    }
+
     @Test
     public void empty_combination() {
         /*
@@ -38,18 +70,14 @@ public class UnitTests {
         */
         Random generator = new Random();
         int length = 5 + generator.nextInt(5);
-        RandomString rand_string_builder = new RandomString(
-            length, new Random(), "\s\t\n\r"
-        );
-
-        String raw_input = rand_string_builder.next_string();
+        String raw_input = generate_whitespace(length);
 
         try {
             RecordChecker.parse_combination(raw_input);
         } catch (Exception e) {
             assertTrue(e instanceof BadCombination);
             String error_message = e.getMessage();
-            System.out.println("EMPOTY COMBO");
+            System.out.println("EMPTY COMBO");
             System.out.println(error_message);
             assertEquals(error_message, RecordChecker.BLANK_COLUMN);
             return;
@@ -65,12 +93,16 @@ public class UnitTests {
         ensure a string containing comma delimited columns
         where each column is unique successfully returns an array
         of the columns
+
+        the column strings are fuzz randomly generated, and each
+        column has a length between 5 and 10 (inclusive)
         */
         Random generator = new Random();
         int num_columns = 5 + generator.nextInt(5);
-        int column_length = 5 + generator.nextInt(5);
+        int min_column_length = 5 + generator.nextInt(5);
+        int max_column_length = min_column_length + 5;
         ArrayList<String> columns = RandomString.generate_multi_exc(
-            num_columns, column_length
+            num_columns, min_column_length, max_column_length
         );
 
         String unique_combination = String.join(",", columns);
@@ -100,7 +132,52 @@ public class UnitTests {
         );
 
         int index = generator.nextInt(columns.size());
+        // set this column to blank to trigger the error
         columns.set(index, "");
+
+        String unique_combination = String.join(",", columns);
+        // unique_combination = "asd, sdasd, fdaasd,";
+        // String[] split = unique_combination.split(",");
+        // System.out.println(split);
+        System.out.println("UNIQUE_COMBINATION");
+        System.out.println(unique_combination);
+
+        try {
+            RecordChecker.parse_combination(unique_combination);
+        } catch (Exception e) {
+            assertTrue(e instanceof BadCombination);
+            String err_msg = e.getMessage();
+            assertEquals(RecordChecker.BLANK_COLUMN, err_msg);
+            return;
+        }
+
+        fail("EMPTY COLUMN NOT FAILED IN PARSE_COMBINATION");
+    }
+
+    @Test
+    public void empty_column_v2() {
+        /*
+        unittest for: RecordChecker.parse_combination
+        ensure a string containing comma delimited columns
+        where each column is unique successfully returns an array
+        EXCEPT for one column that's just whitespace fails to parse
+        without errors
+
+        The whitespace is a fuzzed randomly generated string with
+        length between 0 ("") to 10
+        */
+        Random generator = new Random();
+        int num_columns = 5 + generator.nextInt(5);
+        int column_length = 5 + generator.nextInt(5);
+        ArrayList<String> columns = RandomString.generate_multi_exc(
+            num_columns, column_length
+        );
+
+        int whitespace_length = generator.nextInt(10);
+        int index = generator.nextInt(columns.size());
+        // set this column to blank to trigger the error
+        String whitespace = generate_whitespace(whitespace_length);
+        columns.set(index, whitespace);
 
         String unique_combination = String.join(",", columns);
         // unique_combination = "asd, sdasd, fdaasd,";
@@ -128,12 +205,16 @@ public class UnitTests {
         ensure a string containing comma delimited columns
         where one of the columns is duplicated fails to be
         parsed in parse_combination due to duplicate columns
+
+        the column strings are fuzz randomly generated, and each
+        column has a length between 5 and 10 (inclusive)
         */
         Random generator = new Random();
         int num_columns = 5 + generator.nextInt(5);
-        int column_length = 5 + generator.nextInt(5);
+        int min_column_length = 5 + generator.nextInt(5);
+        int max_column_length = min_column_length + 5;
         ArrayList<String> columns = RandomString.generate_multi_exc(
-            num_columns, column_length
+            num_columns, min_column_length, max_column_length
         );
         ArrayList<String> non_unique_columns = RandomString.sample(
             columns, num_columns + 1
@@ -161,14 +242,19 @@ public class UnitTests {
         ensure a string containing comma delimited columns
         where at least one of the columns is duplicated fails to be
         parsed in parse_combination due to duplicate columns
+
+        the column strings are fuzz randomly generated, and each
+        column has a length between 5 and 10 (inclusive)
         */
         Random generator = new Random();
         int num_columns = 5 + generator.nextInt(5);
-        int column_length = 5 + generator.nextInt(5);
+        int min_column_length = 5 + generator.nextInt(5);
+        int max_column_length = min_column_length + 5;
         int excess_columns = 1 + generator.nextInt(5);
 
         ArrayList<String> columns = RandomString.generate_multi_exc(
-            num_columns, column_length
+            num_columns, min_column_length, max_column_length
+
         );
         ArrayList<String> non_unique_columns = RandomString.sample(
             columns, num_columns + excess_columns
@@ -240,7 +326,8 @@ public class UnitTests {
     }
 
     @Test
-    public void same_file_mismatches_v2() throws FilesMismatch, BadCombination {
+    public void same_file_mismatches_v2(
+    ) throws FilesMismatch, BadCombination {
         /*
         unittest for: RecordChecker.get_mismatch_rows
         Check that if we check a csv file populated with random
@@ -282,7 +369,8 @@ public class UnitTests {
     }
 
     @Test
-    public void same_file_mismatches_v3() throws FilesMismatch, BadCombination {
+    public void same_file_mismatches_v3(
+    ) throws FilesMismatch, BadCombination {
         /*
         unittest for: RecordChecker.get_mismatch_rows
         Check that if we check a csv file populated with random

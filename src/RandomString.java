@@ -22,7 +22,8 @@ public class RandomString {
     }
 
     public static String generate(int length) {
-        RandomString generator = new RandomString();
+        if (length == 0) { return ""; }
+        RandomString generator = new RandomString(length);
         return generator.next_string();
     }
 
@@ -37,10 +38,25 @@ public class RandomString {
     public static ArrayList<String> generate_multi(
         int num_samples, int length
     ) {
+        return generate_multi(num_samples, length, length);
+    }
+
+    public static ArrayList<String> generate_multi(
+        int num_samples, int min_length, int max_length
+    ) {
+        /*
+        generate random strings (number is num_samples), where
+        each string has a length from min_length to max_length
+        (inclusive)
+        */
         ArrayList<String> rand_strings = new ArrayList<>();
-        RandomString generator = new RandomString(length);
+        int span = max_length - min_length + 1;
+
         for (int k=0; k<num_samples; k++) {
-            rand_strings.add(generator.next_string());
+            Random int_generator = new Random();
+            int length = min_length + int_generator.nextInt(span);
+            String next_string = generate(length);
+            rand_strings.add(next_string);
         }
 
         return rand_strings;
@@ -72,6 +88,85 @@ public class RandomString {
         }
 
         return rand_strings;
+    }
+
+    public static ArrayList<String> generate_multi_exc(
+        int num_samples, int min_length, int max_length
+    ) {
+        /*
+        generate a random arraylist of strings that are
+        unique, where each string has a length between min_length
+        to max_length (inclusive)
+        */
+        return generate_multi_exc(
+            num_samples, min_length, max_length, new ArrayList<>()
+        );
+    }
+
+    public static ArrayList<String> generate_multi_exc(
+        int num_samples, int min_length, int max_length,
+        List<String> exclusions
+    ) {
+        /*
+        generate a random arraylist of strings that are
+        unique and don't appear in the exclusions arraylist either,
+        where each string has a length between min_length
+        to max_length (inclusive)
+        */
+        assert max_length >= min_length;
+        Random int_generator = new Random();
+        ArrayList<String> rand_strings = new ArrayList<>();
+        int span = max_length - min_length + 1;
+
+        while (rand_strings.size() < num_samples) {
+            int length = min_length + int_generator.nextInt(span);
+            String sample = generate(length);
+
+            if (exclusions.contains(sample)) { continue; }
+            if (rand_strings.contains(sample)) { continue; }
+            rand_strings.add(sample);
+        }
+
+        return rand_strings;
+    }
+
+    public static ArrayList<
+    ArrayList<String>> generate_unique_string_arrays(
+        int num_samples, int num_columns
+    ) {
+        return generate_unique_string_arrays(
+          num_samples, num_columns, num_columns
+        );
+    }
+
+    public static ArrayList<
+    ArrayList<String>> generate_unique_string_arrays(
+        int num_samples, int min_columns, int max_columns
+    ) {
+        int span = max_columns - min_columns + 1;
+        ArrayList<ArrayList<String>> rows = new ArrayList<>();
+        Random int_generator = new Random();
+
+        for (int k=0; k<num_samples; k++) {
+            int num_columns = min_columns + int_generator.nextInt(span);
+            ArrayList<String> row = generate_multi(num_samples, num_columns);
+            if (arraylist_contains(rows, row)) { continue; }
+            rows.add(row);
+        }
+
+        return rows;
+    }
+
+    public static boolean arraylist_contains(
+        ArrayList<ArrayList<String>> rows, ArrayList<String> row
+    ) {
+        for (ArrayList<String> current_row : rows) {
+            if (row.equals(current_row)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static String unique_random(
