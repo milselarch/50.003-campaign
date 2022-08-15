@@ -39,10 +39,5 @@ HEADERS
 Successfully wrote mismatches to mismatches/mismatches-220711-214731.csv
 ```
 
-Example input used to replicate the example output provided in sample_file_output_comparing_1_and_3.csv (typed in user inputs is in green)
-![Screenshot from 2022-08-12 21-52-05](https://user-images.githubusercontent.com/11241733/184367690-0f8b2714-2cdf-4a7b-b5db-3308201ff814.png)
-
-## Deployment architecture:
-![system-architecture-v2](https://user-images.githubusercontent.com/11241733/184599512-e1a5da21-c38a-4f9c-afb9-11547e05632c.png)  
-The frontend is deployed as static webpage files using firebase static web hosting, and secured from DDOS attacks using cloudflare, while the backend + MySQL database server is running on a GCP (Google cloud playform) compute instance and secured from DDOS attacks using cloudflare. The advantage of this arrangement is that static frontend files can be served with caching (as they don't change) + CDN optimisation using firebase's own CDN, and also that the frontend deployment can be done independently from the backend and vice versa. The disadvantage is that our system architecure is slightly more complicated than if we deployed everything on just one server, and that we have to protect the frontend and backend from DDOS attacks seperately as well.  
+Example input used to replicate the example output provided in sample_file_output_comparing_1_and_3.csv (typed in user inputs is in green)  
 
