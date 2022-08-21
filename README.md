@@ -2,6 +2,7 @@
 Software testing campaign repo for Lim Thian Yew (1003158)  
 The boundary value + equivilance class stuff is at [boundary value and equivilance class analysis.pdf](boundary%20value%20and%20equivilance%20class%20analysis.pdf)  
 Unit tests are in `src/UnitTests.java`, system tests are in `src/SystemTests.java`  
+Week 13 testing code + reports are in [`testing`](https://github.com/milselarch/50.003-campaign/tree/master/testing) folder
 
 Built and tested on: 
 ```console
