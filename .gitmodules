@@ -2,3 +2,7 @@
 	path = testing/1005139_koh_aik_hong
 	url = https://github.com/ffeew/Software-Testing-Mini-Campaign.git
 	branch = 1003158_testing
+[submodule "testing/1003158_testing"]
+	path = testing/1003158_testing
+	url = https://github.com/joebaarath/1005433_ESC_Testing_Campaign
+    branch = 1003158_testing
