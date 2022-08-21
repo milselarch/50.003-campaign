@@ -39,5 +39,5 @@ HEADERS
 Successfully wrote mismatches to mismatches/mismatches-220711-214731.csv
 ```
 
-Example input used to replicate the example output provided in sample_file_output_comparing_1_and_3.csv (typed in user inputs is in green)
-![Screenshot from 2022-08-12 21-52-05](https://user-images.githubusercontent.com/11241733/184367690-0f8b2714-2cdf-4a7b-b5db-3308201ff814.png)
+Example input used to replicate the example output provided in sample_file_output_comparing_1_and_3.csv (typed in user inputs is in green)  
+
